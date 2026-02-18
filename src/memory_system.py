@@ -41,3 +41,15 @@ class MemoryManager:
     def link_nodes(self, source_id: str, target_id: str, relationship: str):
         """Creates a bidirectional edge between two concepts."""
         if source_id in self.nodes and target_id in self.nodes:
+            self.nodes[source_id].add_edge(target_id, relationship)
+            self.nodes[target_id].add_edge(source_id, f"REVERSE_{relationship}")
+
+    def _calculate_temporal_proximity(self, node: MemoryNode, current_time: datetime.datetime) -> float:
+        """Calculates Proximity Score decay based on age."""
+        if node.is_evergreen:
+            return 1.0
+        
+        age_days = (current_time - node.timestamp).days
+        if age_days < 0:
+            age_days = 0
+            
