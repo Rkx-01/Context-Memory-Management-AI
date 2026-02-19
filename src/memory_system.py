@@ -53,3 +53,24 @@ class MemoryManager:
         if age_days < 0:
             age_days = 0
             
+        # Exponential decay: P_temp = e^(-λt)
+        decay_score = math.exp(-self._lambda * age_days)
+        return max(0.01, decay_score) # Don't drop all the way to 0
+
+    def _calculate_relational_distance(self, start_id: str, target_id: str, max_depth: int = 3) -> float:
+        """Calculates graph distance using BFS. Shorter distance = higher score."""
+        if start_id == target_id:
+            return 1.0
+        
+        queue = [(start_id, 0)]
+        visited = {start_id}
+        
+        while queue:
+            curr_id, depth = queue.pop(0)
+            
+            if curr_id == target_id:
+                # Degree 1 = 1.0, Degree 2 = 0.5, Degree 3 = 0.33
+                return 1.0 / depth
+                
+            if depth < max_depth:
+                current_node = self.nodes.get(curr_id)
