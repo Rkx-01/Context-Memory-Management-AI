@@ -74,3 +74,59 @@ class MemoryManager:
                 
             if depth < max_depth:
                 current_node = self.nodes.get(curr_id)
+                if current_node:
+                    for neighbor_id in current_node.edges:
+                        if neighbor_id not in visited:
+                            visited.add(neighbor_id)
+                            queue.append((neighbor_id, depth + 1))
+                            
+        return 0.0 # No relationship within max_depth
+
+    def _mock_semantic_similarity(self, query: str, node_content: str) -> float:
+        """Mocks a vector embedding cosine similarity score."""
+        query_words = set(query.lower().split())
+        content_words = set(node_content.lower().split())
+        
+        if not query_words or not content_words:
+            return 0.0
+            
+        intersection = query_words.intersection(content_words)
+        return len(intersection) / max(len(query_words), 1)
+
+    def retrieve_context(self, current_interaction: 'MemoryNode', current_time: datetime.datetime, 
+                         query: str = "", top_k: int = 5) -> List[tuple[MemoryNode, float]]:
+        """
+        Retrieves and ranks historical context based on Proximity Scoring.
+        Returns a sorted list of (Node, Score).
+        """
+        results = []
+        
+        for n_id, node in self.nodes.items():
+            if n_id == current_interaction.node_id:
+                continue
+                
+            # 1. Temporal
+            p_temp = self._calculate_temporal_proximity(node, current_time)
+            
+            # 2. Relational (Graph Distance from current interaction)
+            # Find closest connected entity (e.g., this invoice -> connected to what supplier -> connected to past issues)
+            # Find the core entity this interaction is about to serve as the start of the graph search
+            p_rel = 0.0
+            for edge_target in current_interaction.edges:
+                dist = self._calculate_relational_distance(edge_target, n_id)
+                if dist > p_rel:
+                    p_rel = dist
+
+            # 3. Semantic
+            p_sem = self._mock_semantic_similarity(query, node.content) if query else 1.0
+            
+            # Final Proximity Score
+            score = (self.w_temp * p_temp + self.w_rel * p_rel + self.w_sem * p_sem) * node.importance
+            
+            # Only include if there is *some* relevance (relational or semantic match)
+            if p_rel > 0 or p_sem > 0.2:
+                results.append((node, score))
+                
+        # Sort by score descending
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:top_k]
