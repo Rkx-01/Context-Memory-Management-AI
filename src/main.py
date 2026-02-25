@@ -91,3 +91,51 @@ def setup_scenario_2() -> tuple[MemoryManager, datetime.datetime]:
     # Historical: Past similar issue 6 months ago (180 days)
     past_date_6m = current_time - datetime.timedelta(days=180)
     past_issue = MemoryNode(
+        "TICKET_899", "Ticket", 
+        "Integration issue. Resolved in 48 hours. Customer frustrated about response time.", 
+        past_date_6m
+    )
+    
+    # Experiential: Stakeholder Context
+    stakeholder_context = MemoryNode(
+        "PREF_01", "Preference", 
+        "CTO is directly involved in escalations; prefers technical deep-dives over summaries.", 
+        current_time, is_evergreen=True
+    )
+    
+    for node in [customer_tc, renewal_node, past_issue, stakeholder_context]:
+        mm.add_node(node)
+        
+    mm.link_nodes("CUST_TC", "EVENT_01", "SIGNED_CONTRACT")
+    mm.link_nodes("CUST_TC", "TICKET_899", "SUBMITTED_TICKET")
+    mm.link_nodes("CUST_TC", "PREF_01", "HAS_STAKEHOLDER_PREF")
+    
+    return mm, current_time
+
+def run_scenario_2():
+    print_separator("Scenario 2: Escalation Management")
+    mm, current_time = setup_scenario_2()
+    
+    # New Ticket Arrives (Immediate Context)
+    ticket_900 = MemoryNode("TICKET_900", "Ticket", "Critical integration issue submitted by TechCorp Inc.", current_time)
+    ticket_900.add_edge("CUST_TC", "SUBMITTED_BY")
+    mm.add_node(ticket_900)
+    
+    print(f"Current Interaction: {ticket_900.content}")
+    print("Retrieving Relevant Historical Context (Top 4):")
+    
+    # Semantic Search simulation: "integration frustration competitor escalation"
+    context_results = mm.retrieve_context(ticket_900, current_time, query="integration technical competitors", top_k=4)
+    
+    for i, (node, score) in enumerate(context_results, 1):
+        age = (current_time - node.timestamp).days
+        age_str = "Evergreen" if node.is_evergreen else f"{age} days old"
+        print(f"  {i}. [Score: {score:.2f}] ({age_str}) - {node.node_type}: {node.content}")
+        
+    print("\nDecision Impact:")
+    print("> The recent contract renewal (mentioning competitors) scores highest due to high importance and relational proximity.")
+    print("> The 'technical deep-dive' preference is flagged to the AI Agent so it formats its response appropriately for the CTO.")
+
+if __name__ == "__main__":
+    run_scenario_1()
+    run_scenario_2()
