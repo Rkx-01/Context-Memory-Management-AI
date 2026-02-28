@@ -1,21 +1,25 @@
-# 🎬 1-Minute App Walkthrough Script 
-*(Aim: Natural, casual tone. ~140 words. Just talk like you're showing a friend what you built!)*
+# 🎬 Explaining the Dashboard Metrics (1-Minute Script)
+*(Aim: Natural, casual tone. ~140 words. Focuses on what the specific numbers/labels mean.)*
 
 ---
 
 **[Visual Setup]** 
 *Have the Streamlit dashboard open (`http://localhost:8501`).*
+*Ensure the sidebar is set to "Invoice QA (Supplier XYZ)".*
 *Start Screen Recording your browser window.*
 
 ---
 
-**[0:00 - 0:20] The Intro**
-"Hey everyone, this is a quick demo of what I built for my internship assignment. It's basically a memory system for AI agents. Usually, if you dump a ton of historical data into an AI, it either hits a token limit or gets really confused. So, I built a small engine that automatically figures out what context actually matters most."
+**[0:00 - 0:25] The Trigger & Context Breakdown**
+"Hey everyone! Let's take a quick look at this UI I built for the AI agent memory system. On the left side, we have our 'Trigger Event'—a new invoice just came in. Now, look at the Context Cards on the right. These aren't just random search results; the engine actually scores them."
 
-**[0:20 - 0:45] The Demo**
-*(Point or wiggle your mouse around the left 'Trigger' card)*
-"For example, in this dashboard here, a new invoice just came in from Supplier XYZ. Instead of the AI just blinding approving it, my engine digs up the vendor's history *(point to the right side)*. It instantly pulls up a major issue from four months ago where they delivered broken products, plus an old company rule to watch out for summer deliveries. So now, the AI knows to flag the invoice."
+**[0:25 - 0:45] Explaining the Values**
+*(Point to the top right card labeled 'Score: 2.333')*
+"See this score up top at 2.3? That’s the 'Proximity Score'. It's a calculation based on how related the topic is, combined with the time distance. 
 
-**[0:45 - 1:00] The Sliders**
-*(Hover over the Sliders on the bottom left)*
-"And down here, I added some sliders to make the algorithm tunable. If I drag the time weight down to zero, you can see how older memories suddenly pop back up to the top. So yeah, that's the prototype! Thanks for checking it out."
+Down here *(point to the 'Age: 120d' label on the red Issue card)*, you see this red issue is exactly 120 days old. Normally, old data gets ignored by AIs, but the math correctly ranked this highly because the *severity* outweighed the age. 
+
+And notice these ones that say 'Evergreen Policy' *(point to the green flag)*? Those are permanent rules, like this summer-delivery warning, so the engine completely bypasses the decay algorithm for them."
+
+**[0:45 - 1:00] Conclusion**
+"So basically, by calculating these precise timeline and relationship scores, the AI instantly knows exactly which historical facts are still relevant today before making a decision."
